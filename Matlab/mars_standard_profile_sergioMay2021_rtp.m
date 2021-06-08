@@ -105,8 +105,8 @@ px.stemp(1) = max(px.ptemp(:,1));
 
 % RECALL PPMV = 10^6 VMR
 % May 26, 2021
-% px.gas_1(:,1) = 210;
-% px.gas_2(:,1) = 0.95*1e6;    
+% px.gas_1(:,1) = 210*1e-6;
+% px.gas_2(:,1) = 0.95;    
 
 % June 7, 2021
 px.gas_1(:,1) = 210;     
