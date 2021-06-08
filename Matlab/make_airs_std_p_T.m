@@ -13,8 +13,13 @@ oo = find(h > 7000);
   T(oo) = -23.4 - 0.00222 * h(oo) + 1e-8*h(oo).^2;      %% -dT/dh = 2.2 K/km, I did the quadratic modification 
   p(oo) = .699 * exp(-0.00009 * h(oo));
 
+%% original in May 21, 2021
 T = T + 273;
 n = p ./ (0.1921 * T);   %% density using eqn of state
+
+%% fixed?? June 7, 2021
+%% p V = n R T ==> n/V = p/RT  moles/m3 = p*1000*6.023e23/RT molecules/m3         p in kPa so x1000 to put in Pa
+n = p*1000*6.023e23 ./ (8.31 *T);
 
 p = p*1000/100;  %% KPa to Pa = N/m2 to mb
 T = T;           %% in K
@@ -82,13 +87,20 @@ end
 
 %% https://nssdc.gsfc.nasa.gov/planetary/factsheet/marsfact.html
 %% Surface density: ~0.020 kg/m3
-%% Atmospheric composition (by volume): 
+%% Atmospheric composition (by volume) : PPMV = 10^6 VMR
 %%     Major      : Carbon Dioxide (CO2) - 95.1% ; Nitrogen (N2) - 2.59%
 %%                  Argon (Ar) - 1.94%; Oxygen (O2) - 0.16%; Carbon Monoxide (CO) - 0.06% 
 %%     Minor (ppm): Water (H2O) - 210; Nitrogen Oxide (NO) - 100; Neon (Ne) - 2.5;
 %%                  Hydrogen-Deuterium-Oxygen (HDO) - 0.85; Krypton (Kr) - 0.3; 
 %% 		 			    Xenon (Xe) - 0.08
 %% 
+%% when we write ../Data/glmars.dat we see surface denity 3.31970e+17 molecules/cm3
+%%  so surface density = (3.32e17*1e6) * (44/1000) / 6.023e23   where I convert to molecules/m3 and CO2 molar mass = 44g/mol
+%%  0.0243 kg/m3 YAY
+%%
+%% /asl/rta/kcarta_sergio/KCDATA/RefProf_Mars/refgas2 says lowemost layer has 1.8660463e-05 kmol/cm2
+%% so lowest layer = 300 m, 0.95 VMR ==> q = (3.32e17*1e6) * 0.75 * 300 molecules/m2 = (3.32e17*1e6) * 0.75 * 300 / 1e4 molecules/cm2 
+%%                                         = (3.32e17*1e6) * 0.75 * 300 / 1e4 /6e26 kmol/cm2 = 1.24e-5  YAY
 
 iWrite = +1;
 if iWrite > 0
@@ -140,7 +152,7 @@ if iWrite > 0
   fprintf(fid,'  %11.5e \n',NP(ind));
   fprintf(fid,'!\n');
 
-  gas = ones(size(TP)) * 210 * 1e-6;
+  gas = ones(size(TP)) * 210;
   fprintf(fid,'1 : WV (ppmv) \n');
   for ii = 1 : 20
     ind = (1:5) + (ii-1)*5;
@@ -150,7 +162,7 @@ if iWrite > 0
   fprintf(fid,'  %11.5f \n',gas(ind));
   fprintf(fid,'!\n');
 
-  gas = ones(size(TP)) * 95/100;
+  gas = ones(size(TP)) * 95/100 * 1e6;
   fprintf(fid,'2 : CO2 (ppmv) \n');
   for ii = 1 : 20
     ind = (1:5) + (ii-1)*5;
@@ -160,7 +172,7 @@ if iWrite > 0
   fprintf(fid,'  %11.5f \n',gas(ind));
   fprintf(fid,'!\n');
 
-  gas = ones(size(TP)) * 2.59/100;
+  gas = ones(size(TP)) * 2.59/100 * 1e6;
   fprintf(fid,'3 : N2 (ppmv) \n');
   for ii = 1 : 20
     ind = (1:5) + (ii-1)*5;
@@ -170,7 +182,7 @@ if iWrite > 0
   fprintf(fid,'  %11.5f \n',gas(ind));
   fprintf(fid,'!\n');
 
-  gas = ones(size(TP)) * 0.16/100;
+  gas = ones(size(TP)) * 0.16/100 * 1e6;
   fprintf(fid,'4 : O2 (ppmv) \n');
   for ii = 1 : 20
     ind = (1:5) + (ii-1)*5;
@@ -180,7 +192,7 @@ if iWrite > 0
   fprintf(fid,'  %11.5f \n',gas(ind));
   fprintf(fid,'!\n');
 
-  gas = ones(size(TP)) * 0.06/100;
+  gas = ones(size(TP)) * 0.06/100 * 1e6;
   fprintf(fid,'5 : CO (ppmv) \n');
   for ii = 1 : 20
     ind = (1:5) + (ii-1)*5;
@@ -190,7 +202,7 @@ if iWrite > 0
   fprintf(fid,'  %11.5f \n',gas(ind));
   fprintf(fid,'!\n');
 
-  gas = ones(size(TP)) * 100 * 1e-6;
+  gas = ones(size(TP)) * 100;
   fprintf(fid,'6 : NO (ppmv) \n');
   for ii = 1 : 20
     ind = (1:5) + (ii-1)*5;

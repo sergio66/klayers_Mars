@@ -62,13 +62,20 @@ NP = interp1(log(p),n,log(P),[],'extrap'); figure(2); semilogy(n,p,NP,P); set(gc
 
 %% https://nssdc.gsfc.nasa.gov/planetary/factsheet/marsfact.html
 %% Surface density: ~0.020 kg/m3
-%% Atmospheric composition (by volume): 
+%% Atmospheric composition (by volume) : PPMV = 10^6 VMR
 %%     Major      : Carbon Dioxide (CO2) - 95.1% ; Nitrogen (N2) - 2.59%
 %%                  Argon (Ar) - 1.94%; Oxygen (O2) - 0.16%; Carbon Monoxide (CO) - 0.06% 
 %%     Minor (ppm): Water (H2O) - 210; Nitrogen Oxide (NO) - 100; Neon (Ne) - 2.5;
 %%                  Hydrogen-Deuterium-Oxygen (HDO) - 0.85; Krypton (Kr) - 0.3; 
 %% 		 			    Xenon (Xe) - 0.08
 %% 
+%% when we write ../Data/glmars.dat we see surface denity 3.31970e+17 molecules/cm3
+%%  so surface density = (3.32e17*1e6) * (44/1000) / 6.023e23   where I convert to molecules/m3 and CO2 molar mass = 44g/mol
+%%  0.0243 kg/m3 YAY
+%%
+%% /asl/rta/kcarta_sergio/KCDATA/RefProf_Mars/refgas2 says lowemost layer has 1.8660463e-05 kmol/cm2
+%% so lowest layer = 300 m, 0.95 VMR ==> q = (3.32e17*1e6) * 0.75 * 300 molecules/m2 = (3.32e17*1e6) * 0.75 * 300 / 1e4 molecules/cm2 
+%%                                         = (3.32e17*1e6) * 0.75 * 300 / 1e4 /6e26 kmol/cm2 = 1.24e-5  YAY
 
 hx.ptype = 0;
 hx.pfields = 1;
@@ -76,7 +83,7 @@ hx.pmin = 0;
 hx.pmax = 10;
 hx.ngas = 2;
 hx.glist = [1 2]';
-hx.gunit = [10 10]';
+hx.gunit = [10 10]';   %% this is ppm  PPM = VMR * 1e6
 hx.vcmin = 605;
 hx.vcmax = 2805;
 
@@ -96,8 +103,14 @@ px.plevs(:,1) = P(1:2:100);
 px.ptemp(:,1) = TP(1:2:100);
 px.stemp(1) = max(px.ptemp(:,1));
 
-px.gas_1(:,1) = 210*1e-6;
-px.gas_2(:,1) = 0.95;    
+% RECALL PPMV = 10^6 VMR
+% May 26, 2021
+% px.gas_1(:,1) = 210;
+% px.gas_2(:,1) = 0.95*1e6;    
+
+% June 7, 2021
+px.gas_1(:,1) = 210;     
+px.gas_2(:,1) = 0.95*1e6;
 
 px.rlat  = single(px.rlat);
 px.plat  = single(px.plat);
@@ -119,16 +132,16 @@ px.efreq  = single([0500 3000]');
 px.emis   = single([0.98 0.98]');
 px.rho = single((1-px.emis)/pi);
 
-rtpwrite('mars_sergio_rtp.ip.rtp',hx,[],px,[]);
+rtpwrite('../Data/mars_sergio_rtp.ip.rtp',hx,[],px,[]);
 
 semilogy(px.ptemp,px.plevs); set(gca,'ydir','reverse');
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-klayerser = ['!../BinV201/klayers_mars_wetwater fin=mars_sergio_rtp.ip.rtp fout=mars_sergio_rtp.op.rtp'];
+klayerser = ['!../BinV201/klayers_mars_wetwater fin=../Data/mars_sergio_rtp.ip.rtp fout=../Data/mars_sergio_rtp.op.rtp'];
 eval(klayerser)
 
-[hx2,~,px2,~] = rtpread('mars_sergio_rtp.op.rtp');
+[hx2,~,px2,~] = rtpread('../Data/mars_sergio_rtp.op.rtp');
 pN = px2.plevs(1:100,:)-px2.plevs(2:101,:);
 pD = log(px2.plevs(1:100,:)./px2.plevs(2:101,:));
 px2.plays = pN./pD;
@@ -157,7 +170,7 @@ semilogx(P,HP/1000,'co-',px2.plays(1:px2.nlevs(1)-1,1),px2.palts(1:px2.nlevs(1)-
 
 %% now dump out info
 for ii = 1 : 6
-  fid = fopen(['RefgasMars/refgas' num2str(hx2.glist(ii))],'w');
+  fid = fopen(['../Data/RefgasMars/refgas' num2str(hx2.glist(ii))],'w');
   fid2 = fopen(['/asl/rta/kcarta_sergio/KCDATA/RefProf_Mars/refgas' num2str(hx2.glist(ii))],'w');
 
   [ppmvx] = layers2ppmv(hx2,px2,1,hx2.glist(ii)); 

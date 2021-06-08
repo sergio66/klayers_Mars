@@ -107,10 +107,8 @@
  !caaCloudFile  =  'ice_bin_agg_333_2985_unsc'
  iMPSetForRadRTP = 1
 
- caPFname = 'mars_sergio_rtp.op.rtp'
- 
- !!iAFGLProf = 2
- !caPFname = 'trp.prof'
+ !! this is the standard profile
+ caPFname = '../Data/mars_sergio_rtp.op.rtp'
  
  $end
 

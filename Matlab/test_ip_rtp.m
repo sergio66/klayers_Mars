@@ -62,14 +62,20 @@ NP = interp1(log(p),n,log(P),[],'extrap'); figure(2); semilogy(n,p,NP,P); set(gc
 
 %% https://nssdc.gsfc.nasa.gov/planetary/factsheet/marsfact.html
 %% Surface density: ~0.020 kg/m3
-%% Atmospheric composition (by volume): 
+%% Atmospheric composition (by volume) : PPMV = 10^6 VMR
 %%     Major      : Carbon Dioxide (CO2) - 95.1% ; Nitrogen (N2) - 2.59%
 %%                  Argon (Ar) - 1.94%; Oxygen (O2) - 0.16%; Carbon Monoxide (CO) - 0.06% 
 %%     Minor (ppm): Water (H2O) - 210; Nitrogen Oxide (NO) - 100; Neon (Ne) - 2.5;
 %%                  Hydrogen-Deuterium-Oxygen (HDO) - 0.85; Krypton (Kr) - 0.3; 
 %% 		 			    Xenon (Xe) - 0.08
 %% 
-
+%% when we write ../Data/glmars.dat we see surface denity 3.31970e+17 molecules/cm3
+%%  so surface density = (3.32e17*1e6) * (44/1000) / 6.023e23   where I convert to molecules/m3 and CO2 molar mass = 44g/mol
+%%  0.0243 kg/m3 YAY
+%%
+%% /asl/rta/kcarta_sergio/KCDATA/RefProf_Mars/refgas2 says lowemost layer has 1.8660463e-05 kmol/cm2
+%% so lowest layer = 300 m, 0.95 VMR ==> q = (3.32e17*1e6) * 0.75 * 300 molecules/m2 = (3.32e17*1e6) * 0.75 * 300 / 1e4 molecules/cm2 
+%%                                         = (3.32e17*1e6) * 0.75 * 300 / 1e4 /6e26 kmol/cm2 = 1.24e-5  YAY
 
 hx.ptype = 0;
 hx.pfields = 1;
@@ -103,8 +109,14 @@ px.ptemp(:,2) = TP(1:2:100) - sinsin';
 px.stemp(1) = max(px.ptemp(:,1)) + 1;
 px.stemp(2) = max(px.ptemp(:,2)) - 1;
 
-px.gas_1(:,1) = 100*1e-6; px.gas_1(:,2) = 50*1e-6;
-px.gas_2(:,1) = 0.95;     px.gas_2(:,2) = 0.96;
+% RECALL PPMV = 10^6 VMR
+% May 26, 2021. I messsed up MR and ppm!!! these are MR  
+% px.gas_1(:,1) = 100*1e-6; px.gas_1(:,2) = 50*1e-6;
+% px.gas_2(:,1) = 0.95;     px.gas_2(:,2) = 0.96;
+
+% June 7, 2021
+px.gas_1(:,1) = 200;          px.gas_1(:,2) = 50;
+px.gas_2(:,1) = 0.97*1e6;     px.gas_2(:,2) = 0.96*1e6;
 
 px.rlat  = single(px.rlat);
 px.plat  = single(px.plat);

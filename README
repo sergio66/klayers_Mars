@@ -13,6 +13,17 @@ d) so that means there are no xsec gases
 
 The driver for all of these three is is 
   Matlab/make_airs_std_p_T.m
+and
+  Matlab/test_ip_rtp.m makes an rtp file with an arbitrary (close) profile, which
+  could be close to the Mars Standard Profile
+and
+  Matlab/mars_standard_profile_sergioMay2021_rtp.m makes the Data/glmars.dat      Mars Standard Profile
+                                                   makes the Data/RefgasMars/refgas*  standard profiles
+                                                     used by kCARTA
+
+The Test directory allows you to test the code, and compare Earth spectra vs Martian spectra
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 klayers code was developed by
   Scott Hannon            
